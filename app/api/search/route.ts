@@ -3,7 +3,7 @@ import { config } from "@/lib/config";
 import { cacheGet, cacheSet } from "@/lib/redis";
 import { clientIp, rateLimit } from "@/utils/ratelimit";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 /**

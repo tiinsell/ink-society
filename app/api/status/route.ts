@@ -1,7 +1,7 @@
 import { queueDepths, recentArticleIds, latestReportId } from "@/lib/redis";
 import { config } from "@/lib/config";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 /**

@@ -1,15 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "functions": {
-    "app/api/cron/daily/route.ts": {
-      "maxDuration": 60
+  "crons": [
+    {
+      "path": "/api/cron/daily",
+      "schedule": "0 8 * * *"
     },
-    "app/api/cron/weekly/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/process/route.ts": {
-      "maxDuration": 60
+    {
+      "path": "/api/cron/weekly",
+      "schedule": "0 10 * * 5"
     }
-  }
+  ]
 }
