@@ -90,7 +90,7 @@ async function handleCallbackQuery(id: string, chatId: number | string, data: st
   }
 
   if (data === "/search" || data === "/tag" || data === "/category") {
-    await sendReply(chatId, `لطفاً دستور را به همراه عبارت وارد کنید. مثال:\n${data} seo`);
+    await sendReply(chatId, `✨ لطفاً دستور را به همراه عبارت وارد کنید.\n\n<i>مثال:</i>\n<code>${data} seo</code>`);
     return;
   }
 }
@@ -122,17 +122,17 @@ async function handleCommand(chatId: number | string, text: string): Promise<voi
       return;
 
     case "/search": {
-      if (!arg) return void (await sendReply(chatId, "عبارت جستجو را وارد کنید: /search seo"));
+      if (!arg) return void (await sendReply(chatId, "🔎 <b>جستجوی هوشمند</b>\n\nلطفاً عبارت مورد نظر خود را برای جستجو تایپ کنید.\n\n<i>مثال:</i>\n<code>/search هوش مصنوعی</code>"));
       await replyWithResults(chatId, await searchSafe({ q: arg, limit: 5 }));
       return;
     }
     case "/tag": {
-      if (!arg) return void (await sendReply(chatId, "برچسب را وارد کنید: /tag seo"));
+      if (!arg) return void (await sendReply(chatId, "🏷 <b>جستجو بر اساس برچسب</b>\n\nلطفاً برچسب مورد نظر خود را تایپ کنید.\n\n<i>مثال:</i>\n<code>/tag seo</code>"));
       await replyWithResults(chatId, await searchSafe({ tag: arg, limit: 5 }));
       return;
     }
     case "/category": {
-      if (!arg) return void (await sendReply(chatId, "دسته را وارد کنید: /category SEO"));
+      if (!arg) return void (await sendReply(chatId, "📂 <b>جستجو در دسته‌بندی‌ها</b>\n\nلطفاً نام دسته‌بندی مورد نظر خود را تایپ کنید.\n\n<i>مثال:</i>\n<code>/category بازاریابی</code>"));
       await replyWithResults(chatId, await searchSafe({ category: arg, limit: 5 }));
       return;
     }
