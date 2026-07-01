@@ -146,12 +146,28 @@ export async function sendChannelMessage(text: string): Promise<number> {
 }
 
 /** Reply to an arbitrary chat (used by the webhook bot commands). */
-export async function sendReply(chatId: number | string, text: string): Promise<void> {
+export async function sendReply(
+  chatId: number | string,
+  text: string,
+  reply_markup?: unknown
+): Promise<void> {
   await call("sendMessage", {
     chat_id: chatId,
     text: truncate(text, 4090),
     parse_mode: "HTML",
     disable_web_page_preview: true,
+    reply_markup,
+  });
+}
+
+/** Answer a callback query to remove the loading state on the inline button. */
+export async function answerCallbackQuery(
+  callbackQueryId: string,
+  text?: string
+): Promise<void> {
+  await call("answerCallbackQuery", {
+    callback_query_id: callbackQueryId,
+    text,
   });
 }
 

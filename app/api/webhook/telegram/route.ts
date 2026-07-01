@@ -1,6 +1,6 @@
 import { isAuthorized, unauthorized } from "@/utils/auth";
 import { isTelegramAuthorized } from "@/utils/auth";
-import { sendReply, setWebhook, formatReportMessage } from "@/lib/telegram";
+import { sendReply, setWebhook, formatReportMessage, answerCallbackQuery } from "@/lib/telegram";
 import { escapeHtml } from "@/lib/telegram";
 import { search } from "@/lib/search";
 import { getReport, latestReportId } from "@/lib/redis";
@@ -12,6 +12,11 @@ interface TelegramUpdate {
   message?: {
     chat?: { id?: number | string };
     text?: string;
+  };
+  callback_query?: {
+    id: string;
+    message?: { chat?: { id?: number | string } };
+    data?: string;
   };
 }
 
@@ -37,6 +42,21 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ ok: true });
   }
 
+  if (update.callback_query) {
+    const cb = update.callback_query;
+    const cbChatId = cb.message?.chat?.id;
+    if (cbChatId && cb.data) {
+      try {
+        await handleCallbackQuery(cb.id, cbChatId, cb.data);
+      } catch (err) {
+        try {
+          await sendReply(cbChatId, `⚠️ خطا: ${escapeHtml(String(err))}`);
+        } catch {}
+      }
+    }
+    return Response.json({ ok: true });
+  }
+
   const chatId = update.message?.chat?.id;
   const text = (update.message?.text ?? "").trim();
   if (!chatId || !text) return Response.json({ ok: true });
@@ -54,6 +74,33 @@ export async function POST(req: Request): Promise<Response> {
   return Response.json({ ok: true });
 }
 
+const INLINE_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: "🔎 جستجو", callback_data: "/search" },
+      { text: "🏷 برچسب", callback_data: "/tag" },
+    ],
+    [
+      { text: "📂 دسته‌بندی", callback_data: "/category" },
+      { text: "📈 گزارش", callback_data: "/report" },
+    ],
+  ],
+};
+
+async function handleCallbackQuery(id: string, chatId: number | string, data: string): Promise<void> {
+  await answerCallbackQuery(id).catch(() => {});
+
+  if (data === "/report") {
+    await handleCommand(chatId, "/report");
+    return;
+  }
+
+  if (data === "/search" || data === "/tag" || data === "/category") {
+    await sendReply(chatId, `لطفاً دستور را به همراه عبارت وارد کنید. مثال:\n${data} seo`);
+    return;
+  }
+}
+
 async function handleCommand(chatId: number | string, text: string): Promise<void> {
   const [cmdRaw, ...rest] = text.split(/\s+/);
   const cmd = cmdRaw.toLowerCase().replace(/@.*$/, ""); // strip @botname
@@ -62,7 +109,7 @@ async function handleCommand(chatId: number | string, text: string): Promise<voi
   switch (cmd) {
     case "/start":
     case "/help":
-      await sendReply(chatId, HELP);
+      await sendReply(chatId, HELP, INLINE_KEYBOARD);
       return;
 
     case "/search": {
@@ -88,7 +135,7 @@ async function handleCommand(chatId: number | string, text: string): Promise<voi
       return;
     }
     default:
-      await sendReply(chatId, HELP);
+      await sendReply(chatId, HELP, INLINE_KEYBOARD);
   }
 }
 
