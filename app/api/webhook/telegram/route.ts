@@ -78,7 +78,6 @@ const REPLY_KEYBOARD = {
     [{ text: "📂 دسته‌بندی" }, { text: "📈 گزارش" }],
   ],
   resize_keyboard: true,
-  is_persistent: true,
 };
 
 async function handleCallbackQuery(id: string, chatId: number | string, data: string): Promise<void> {
