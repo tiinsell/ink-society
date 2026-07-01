@@ -97,14 +97,23 @@ async function handleCallbackQuery(id: string, chatId: number | string, data: st
 
 async function handleCommand(chatId: number | string, text: string): Promise<void> {
   let [cmdRaw, ...rest] = text.split(/\s+/);
+  let arg = rest.join(" ").trim();
 
-  if (text === "🔎 جستجو") cmdRaw = "/search";
-  if (text === "🏷 برچسب") cmdRaw = "/tag";
-  if (text === "📂 دسته‌بندی") cmdRaw = "/category";
-  if (text === "📈 گزارش") cmdRaw = "/report";
+  if (text === "🔎 جستجو") {
+    cmdRaw = "/search";
+    arg = "";
+  } else if (text === "🏷 برچسب") {
+    cmdRaw = "/tag";
+    arg = "";
+  } else if (text === "📂 دسته‌بندی") {
+    cmdRaw = "/category";
+    arg = "";
+  } else if (text === "📈 گزارش") {
+    cmdRaw = "/report";
+    arg = "";
+  }
 
   const cmd = cmdRaw.toLowerCase().replace(/@.*$/, ""); // strip @botname
-  const arg = rest.join(" ").trim();
 
   switch (cmd) {
     case "/start":
