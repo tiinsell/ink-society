@@ -20,12 +20,10 @@ interface TelegramUpdate {
   };
 }
 
-const HELP = `🖋 <b>Ink Society</b>
-دستورات:
-/search &lt;عبارت&gt; — جستجو در پایگاه دانش
-/tag &lt;برچسب&gt; — جستجو بر اساس برچسب
-/category &lt;دسته&gt; — جستجو بر اساس دسته
-/report — آخرین گزارش هفتگی`;
+const HELP = `✨ <b>به Ink Society خوش آمدید!</b>
+
+من دستیار هوشمند شما برای جستجو و دریافت آخرین تحلیل‌های بازاریابی هستم. 
+شما می‌توانید با استفاده از دکمه‌های پایین صفحه با من در ارتباط باشید، یا در هر زمان دستورات خود را تایپ کنید. 👇`;
 
 /**
  * POST /api/webhook/telegram
@@ -74,17 +72,13 @@ export async function POST(req: Request): Promise<Response> {
   return Response.json({ ok: true });
 }
 
-const INLINE_KEYBOARD = {
-  inline_keyboard: [
-    [
-      { text: "🔎 جستجو", callback_data: "/search" },
-      { text: "🏷 برچسب", callback_data: "/tag" },
-    ],
-    [
-      { text: "📂 دسته‌بندی", callback_data: "/category" },
-      { text: "📈 گزارش", callback_data: "/report" },
-    ],
+const REPLY_KEYBOARD = {
+  keyboard: [
+    [{ text: "🔎 جستجو" }, { text: "🏷 برچسب" }],
+    [{ text: "📂 دسته‌بندی" }, { text: "📈 گزارش" }],
   ],
+  resize_keyboard: true,
+  is_persistent: true,
 };
 
 async function handleCallbackQuery(id: string, chatId: number | string, data: string): Promise<void> {
@@ -102,14 +96,20 @@ async function handleCallbackQuery(id: string, chatId: number | string, data: st
 }
 
 async function handleCommand(chatId: number | string, text: string): Promise<void> {
-  const [cmdRaw, ...rest] = text.split(/\s+/);
+  let [cmdRaw, ...rest] = text.split(/\s+/);
+
+  if (text === "🔎 جستجو") cmdRaw = "/search";
+  if (text === "🏷 برچسب") cmdRaw = "/tag";
+  if (text === "📂 دسته‌بندی") cmdRaw = "/category";
+  if (text === "📈 گزارش") cmdRaw = "/report";
+
   const cmd = cmdRaw.toLowerCase().replace(/@.*$/, ""); // strip @botname
   const arg = rest.join(" ").trim();
 
   switch (cmd) {
     case "/start":
     case "/help":
-      await sendReply(chatId, HELP, INLINE_KEYBOARD);
+      await sendReply(chatId, HELP, REPLY_KEYBOARD);
       return;
 
     case "/search": {
@@ -135,7 +135,7 @@ async function handleCommand(chatId: number | string, text: string): Promise<voi
       return;
     }
     default:
-      await sendReply(chatId, HELP, INLINE_KEYBOARD);
+      await sendReply(chatId, HELP, REPLY_KEYBOARD);
   }
 }
 
